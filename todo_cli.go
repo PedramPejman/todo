@@ -11,6 +11,7 @@ import (
   "os"
   "os/user"
   "path/filepath"
+  "strings"
 
   "golang.org/x/net/context"
   "golang.org/x/oauth2"
@@ -97,7 +98,7 @@ func saveToken(file string, token *oauth2.Token) {
 // getTodoId gets id for TaskList named "Todo"
 // If this TaskList does not exist, it will be created
 func getTodoId(srv *tasks.Service) (string, error){
-  userTasks, err := srv.Tasklists.List().MaxResults(10).Do()
+  userTasks, err := srv.Tasklists.List().Do()
   if err != nil {
     log.Fatalf("Unable to retrieve task lists.", err)
   }
@@ -121,7 +122,8 @@ func main() {
     log.Fatalf("Please specify task title")
   }
 
-  title := os.Args[1]
+  title := strings.Join(os.Args[1:], " ")
+
   ctx := context.Background()
 
   b, err := ioutil.ReadFile("client_secret.json")
