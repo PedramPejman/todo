@@ -1,0 +1,4 @@
+todo_cli
+*_secret.json
+*.swp
+src/*

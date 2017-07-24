@@ -117,12 +117,38 @@ func getTodoId(srv *tasks.Service) (string, error){
   return todoList.Id, nil
 }
 
-func main() {
-  if len(os.Args) < 2 {
-    log.Fatalf("Please specify task title")
+// Lists current uncompleted todo items to stdout
+func listTodoItems(srv *tasks.Service, todoId string) {
+  tasksObj, _ := srv.Tasks.List(todoId).ShowCompleted(false).Do();
+
+  for _, task:= range tasksObj.Items {
+    fmt.Printf("%s\n", task.Title);
+  }
+}
+
+// Adds a new todo item with given title to todo list
+func addTodoItem(srv *tasks.Service, todoId string, title string) {
+  taskObj := &tasks.Task{
+    Title: title,
   }
 
-  title := strings.Join(os.Args[1:], " ")
+  task, err := srv.Tasks.Insert(todoId, taskObj).Do()
+  if err != nil {
+    log.Fatalf("Could not create task %v", err)
+  }
+
+  if err != nil {
+    log.Fatalf("Could not add task to Todo list: %v", err)
+  }
+
+  fmt.Printf("Task '%s' successfully added to your %s list\n", task.Title, Todo)
+}
+
+func main() {
+  var title string;
+  if len(os.Args) > 1 {
+    title = strings.Join(os.Args[1:], " ")
+  }
 
   ctx := context.Background()
 
@@ -147,17 +173,9 @@ func main() {
     log.Fatalf("Unable to retrieve todo task list: %v", err)
   }
 
-  taskObj := &tasks.Task{
-    Title: title,
+  if title == "" {
+    listTodoItems(srv, todoId);
+  } else {
+    addTodoItem(srv, todoId, title);
   }
-  task, err := srv.Tasks.Insert(todoId, taskObj).Do()
-  if err != nil {
-    log.Fatalf("Could not create task %v", err)
-  }
-
-  if err != nil {
-    log.Fatalf("Could not add task to Todo list: %v", err)
-  }
-
-  fmt.Printf("Task '%s' successfully added to your %s list\n", task.Title, Todo)
 }
