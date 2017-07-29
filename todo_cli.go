@@ -152,7 +152,12 @@ func main() {
 
   ctx := context.Background()
 
-  b, err := ioutil.ReadFile("client_secret.json")
+  dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+  if err != nil {
+    log.Fatalf("Unable to find client secret file: %v", err)
+  }
+
+  b, err := ioutil.ReadFile(filepath.Join(dir, "client_secret.json"))
   if err != nil {
     log.Fatalf("Unable to read client secret file: %v", err)
   }
